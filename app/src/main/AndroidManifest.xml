@@ -23,7 +23,7 @@
 
         <activity
             android:name=".ReportActivity"
-            android:label="New Report">
+            android:label="@string/new_report">
         </activity>
 
     </application>

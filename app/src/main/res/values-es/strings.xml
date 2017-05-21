@@ -10,4 +10,5 @@
     <string name="description_of_incident">Descripción de Incidente</string>
     <string name="school_selection">Escvela</string>
     <string name="abuse_of_power">Abuso de Autoridad</string>
+    <string name="new_report">Nuevo Reporte</string>
 </resources>

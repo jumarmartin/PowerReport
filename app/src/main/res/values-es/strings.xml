@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_settings">Ajustes</string>
+    <string name="tap_on_the_plus_to_get_started">Presiona el butón del plus para empezar.</string>
+    <string name="drugs">Drogas</string>
+    <string name="bullying">Acoso Escolar</string>
+    <string name="fighting">Peleando</string>
+    <string name="select_an_incident">Tipo de incidente para informar</string>
+    <string name="other">Algo mas (Describe al Continuation)</string>
+    <string name="description_of_incident">Descripción de Incidente</string>
+    <string name="school_selection">Escvela</string>
+    <string name="abuse_of_power">Abuso de Autoridad</string>
+</resources>

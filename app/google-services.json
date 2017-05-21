@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "583035270817",
+    "firebase_url": "https://powerreport-a2d00.firebaseio.com",
+    "project_id": "powerreport-a2d00",
+    "storage_bucket": "powerreport-a2d00.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:583035270817:android:f42794f08e949c67",
+        "android_client_info": {
+          "package_name": "com.jumarmartin.powerreport"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "583035270817-6kmt2abfelvdn8olct3l0kgvu50jpkp9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jumarmartin.powerreport",
+            "certificate_hash": "40a6605232d4ca618297f737a6895306488a14e1"
+          }
+        },
+        {
+          "client_id": "583035270817-f3iqdlgt2u77n907e3jjpgmla48j2a25.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8mGyv92rM1agU7tq-KbLBe4-Nu2g3LdU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "583035270817-f3iqdlgt2u77n907e3jjpgmla48j2a25.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

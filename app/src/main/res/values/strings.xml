@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name" translatable="false">PowerReport</string>
+    <string name="action_settings">Settings</string>
+    <string name="tap_on_the_plus_to_get_started">Tap on the plus to get started.</string>
+    <string name="drugs">Drugs</string>
+    <string name="bullying" >Bullying</string>
+    <string name="fighting">Fighting</string>
+    <string name="select_an_incident">Type of Incident</string>
+    <string name="other">Other (Describe Below)</string>
+
+    <string-array name="school_arrays">
+        <item>Ardrey Kell</item>
+        <item>Butler</item>
+        <item>Cato Middle College</item>
+        <item>Engineering Early College</item>
+        <item>East Mecklenburg</item>
+        <item>eLearning</item>
+        <item>Garinger</item>
+        <item>Harding</item>
+        <item>Harper Middle College</item>
+        <item>Hawthorne</item>
+        <item>Hopewell</item>
+        <item>Cochrane</item>
+        <item>Independence</item>
+        <item>Levine Middle College</item>
+        <item>Mallard Creek</item>
+        <item>Marie G. Davis</item>
+        <item>Myers Park</item>
+        <item>North Mecklenburg</item>
+        <item>Northwest SOTA</item>
+        <item>Olympic</item>
+        <item>Performance Learning</item>
+        <item>Phllip O. Berry</item>
+        <item>Providence</item>
+        <item>Rocky River</item>
+        <item>South Mecklenburg</item>
+        <item>West Charlotte</item>
+        <item>West Mecklenburg</item>
+        <item>Hough</item>
+        <item>Vance</item>
+
+     </string-array>
+    <string name="school_selection">School</string>
+    <string name="description_of_incident">Description of Incident</string>
+    <string name="abuse_of_power">Abuse of Power</string>
+
+</resources>

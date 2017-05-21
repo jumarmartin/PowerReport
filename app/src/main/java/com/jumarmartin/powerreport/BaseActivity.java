@@ -1,16 +1,31 @@
 package com.jumarmartin.powerreport;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class BaseActivity extends AppCompatActivity {
+
+    private FirebaseAuth mAuth;
+
+    private static final String TAG = "BaseActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +33,9 @@ public class BaseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_base);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -30,6 +48,28 @@ public class BaseActivity extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        signInAnonymously();
+    }
+
+   private void signInAnonymously() {
+       mAuth.signInAnonymously()
+               .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                   @Override
+                   public void onComplete(@NonNull Task<AuthResult> task) {
+                       if (task.isSuccessful()) {
+                           Log.d(TAG, "signInAnonymously:success");
+
+                       } else {
+                           Log.w(TAG, "signInAnonymously:failure", task.getException());
+                           Toast.makeText(BaseActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
+                       }
+                   }
+               });
+   }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -52,4 +92,5 @@ public class BaseActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
  }

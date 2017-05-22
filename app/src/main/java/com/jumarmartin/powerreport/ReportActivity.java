@@ -33,8 +33,9 @@ import static com.jumarmartin.powerreport.R.id.capture_from_camera;
 import static com.jumarmartin.powerreport.R.id.description_of_incident;
 import static com.jumarmartin.powerreport.R.id.incident_type;
 import static com.jumarmartin.powerreport.R.id.school_spinner;
-import static com.jumarmartin.powerreport.R.id.select_an_incident;
 import static com.jumarmartin.powerreport.R.id.select_image;
+import static com.jumarmartin.powerreport.R.id.submit_button;
+import static com.jumarmartin.powerreport.R.id.up;
 
 
 public class ReportActivity extends AppCompatActivity {
@@ -55,6 +56,7 @@ public class ReportActivity extends AppCompatActivity {
     Spinner mSchool;
     Button mSelectImage;
     Button mCaptureCamera;
+    Button mSubmit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +86,7 @@ public class ReportActivity extends AppCompatActivity {
         mSchool = (Spinner)findViewById(school_spinner);
         mSelectImage = (Button)findViewById(select_image);
         mCaptureCamera = (Button)findViewById(capture_from_camera);
+        mSubmit = (Button)findViewById(submit_button);
 
 
     }
@@ -129,60 +132,104 @@ public class ReportActivity extends AppCompatActivity {
             }
         });
 
+
+
     }
 
     @IgnoreExtraProperties
     public class Incident {
-        private String type;
-        private String description;
-        private String uid;
+
+        //NOTE:  The JSON layout is School (Which school location)/Type (Drugs, Bullying, etc.)/uid (unique identifier)/media (photo or video)
+
+        /*
+        The JSON layout is
+            School/ (Which school location)
+                Type/ (Drugs, Bullying, etc.)
+                    key/ (randomly generated)
+                        UUID: (Unique Identifier)
+                        Description: (text)
+                        Media: (either Photo or Video)
+                        timestamp: (numeric -- Epoch)
+         */
         private String school;
+        private String type;
+        private String uid;
+        private String description;
         private Uri media;
+//TODO: Somehow include this into uploadData()
 
         public Incident() {
 
         }
 
         public Incident(String uid, String type, String description, String school, Uri media) {
-            this.uid = uid;
-            this.type = type;
-            this.description = description;
             this.school = school;
+            this.type = type;
+            this.uid = uid;
+            this.description = description;
             this.media = media;
         }
     }
 
+
+
+
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        //Select from gallery
-        if (requestCode == GALLERY_INTENT && resultCode == RESULT_OK){
-            Uri uri = data.getData();
 
-            StorageReference filepath = mStorage.child("Photos").child(uri.getLastPathSegment());
+        mSubmit.setOnClickListener(new View.OnClickListener() {
 
-            filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Toast.makeText(ReportActivity.this, "Upload Done", Toast.LENGTH_LONG).show();
+            Uri uri;
+
+            public void uploadData() {
+
+                StorageReference filepath = mStorage.child("media").child(uri.getLastPathSegment());
+
+                filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Toast.makeText(ReportActivity.this, "Upload Done", Toast.LENGTH_LONG).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(ReportActivity.this, "Upload Failure", Toast.LENGTH_LONG).show();
+                    }
+                });
+//TODO: PREVENT UPLOAD UNTIL "SUBMIT" BUTTON IS CLICKED - UPLOAD ALL DATA FROM MODEL
+                //        else if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
+                //            Uri uri = data.getData();
+                //            StorageReference filepath = mStorage.child("media").child(uri.getLastPathSegment());
+                //        }
+                finish();
+            }
+
+            @Override
+            public void onClick(View v) {
+                //Select from gallery
+
+                if (requestCode == GALLERY_INTENT && resultCode == RESULT_OK){
+                    uri = data.getData();
+
+                    uploadData();
+
+                    //Capture from Camera
+
+
                 }
-            }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(ReportActivity.this, "Upload Failure", Toast.LENGTH_LONG).show();
-                        }
-                    });
-        }
 
 
-        //Capture from Camera
 
-        //TODO: PREVENT UPLOAD UNTIL "SUBMIT" BUTTON IS CLICKED - UPLOAD ALL DATA FROM MODEL
-//        if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
-//            Uri uri = data.getData();
-//            StorageReference filepath = mStorage.child("Photos").child(uri.getLastPathSegment());
-//        }
+            }
+
+        });
+
+
+
+
     }
 
     private void addSchoolsToSpinner() {

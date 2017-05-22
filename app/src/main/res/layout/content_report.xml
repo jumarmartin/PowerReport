@@ -140,6 +140,13 @@
                     android:text="@string/capture_from_camera" />
             </LinearLayout>
 
+            <Button
+                android:id="@+id/submit_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.85"
+                android:text="@string/submit" />
+
         </LinearLayout>
 
 </ScrollView>

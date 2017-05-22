@@ -46,5 +46,6 @@
     <string name="new_report">New Report</string>
     <string name="capture_from_camera">Capture from Camera</string>
     <string name="select_image_from_gallery">Select Image from Gallery</string>
+    <string name="submit">Submit Report</string>
 
 </resources>

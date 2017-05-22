@@ -44,5 +44,7 @@
     <string name="description_of_incident">Description of Incident</string>
     <string name="abuse_of_power">Abuse of Power</string>
     <string name="new_report">New Report</string>
+    <string name="capture_from_camera">Capture from Camera</string>
+    <string name="select_image_from_gallery">Select Image from Gallery</string>
 
 </resources>

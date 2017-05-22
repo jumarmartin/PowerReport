@@ -1,6 +1,5 @@
 package com.jumarmartin.powerreport;
 
-import android.*;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -13,30 +12,49 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import static com.jumarmartin.powerreport.R.id.capture_from_camera;
+import static com.jumarmartin.powerreport.R.id.description_of_incident;
+import static com.jumarmartin.powerreport.R.id.incident_type;
 import static com.jumarmartin.powerreport.R.id.school_spinner;
+import static com.jumarmartin.powerreport.R.id.select_an_incident;
 import static com.jumarmartin.powerreport.R.id.select_image;
 
 
 public class ReportActivity extends AppCompatActivity {
     //Firebase Storage
-    private Button mSelectImage;
-    private Button mCaptureCamera;
-
     private StorageReference mStorage;
 
+    //Firebase Database
+    private DatabaseReference mDatabase;
+
+    //Codes
     private static final int GALLERY_INTENT = 2;
     private static final int CAMERA_REQUEST_CODE = 1;
     private static final int PERMS_REQUEST_CODE = 1;
+
+    //UI Element Properties
+    EditText mDescriptionIncident;
+    RadioGroup mIncidentType;
+    Spinner mSchool;
+    Button mSelectImage;
+    Button mCaptureCamera;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,12 +62,35 @@ public class ReportActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         addSchoolsToSpinner();
 
+        //Firebase Database
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         //Firebase Storage
-        mSelectImage = (Button) findViewById(select_image);
-        mCaptureCamera = (Button) findViewById(capture_from_camera);
 
         mStorage = FirebaseStorage.getInstance().getReference();
 
+        //THIS AREA IS FOR TESTING PURPOSES ONLY
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("message/:id");
+            myRef.setValue("Hello, \n World!");
+            DatabaseReference myUUID = database.getReference("UUID");
+            FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            myUUID.setValue(currentFirebaseUser.getUid());
+        //END TESTING AREA
+
+        //Get UI Elements
+        mDescriptionIncident = (EditText)findViewById(description_of_incident);
+        mIncidentType = (RadioGroup)findViewById(incident_type);
+        mSchool = (Spinner)findViewById(school_spinner);
+        mSelectImage = (Button)findViewById(select_image);
+        mCaptureCamera = (Button)findViewById(capture_from_camera);
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         //Select from gallery
         mSelectImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +128,28 @@ public class ReportActivity extends AppCompatActivity {
                 startActivityForResult(intent, CAMERA_REQUEST_CODE);
             }
         });
+
+    }
+
+    @IgnoreExtraProperties
+    public class Incident {
+        private String type;
+        private String description;
+        private String uid;
+        private String school;
+        private Uri media;
+
+        public Incident() {
+
+        }
+
+        public Incident(String uid, String type, String description, String school, Uri media) {
+            this.uid = uid;
+            this.type = type;
+            this.description = description;
+            this.school = school;
+            this.media = media;
+        }
     }
 
     @Override
@@ -115,7 +178,7 @@ public class ReportActivity extends AppCompatActivity {
 
         //Capture from Camera
 
-        //TODO: UPLOAD WHEN DONE
+        //TODO: PREVENT UPLOAD UNTIL "SUBMIT" BUTTON IS CLICKED - UPLOAD ALL DATA FROM MODEL
 //        if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
 //            Uri uri = data.getData();
 //            StorageReference filepath = mStorage.child("Photos").child(uri.getLastPathSegment());

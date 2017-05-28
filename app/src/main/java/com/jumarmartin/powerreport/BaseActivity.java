@@ -8,24 +8,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import static com.jumarmartin.powerreport.R.string.your_uid_is;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import static com.jumarmartin.powerreport.R.string.your_uid_is;
+
 public class BaseActivity extends AppCompatActivity {
 
-    private FirebaseAuth mAuth;
-
     private static final String TAG = "BaseActivity";
-
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

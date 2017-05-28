@@ -4,12 +4,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Message;
+import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -23,15 +21,12 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -56,19 +51,10 @@ import static com.jumarmartin.powerreport.R.string.upload_successful;
 
 public class ReportActivity extends AppCompatActivity {
 
-//    Firebase Authentication Declaration
-    private FirebaseAuth mAuth;
-//    Firebase Storage Declarations
-    private StorageReference mStorage;
-
-//    Firebase Database Declarations
-    private DatabaseReference mDatabase;
-
 //    Code Declarations
     private static final int GALLERY_INTENT = 2;
     private static final int CAMERA_REQUEST_CODE = 1;
     private static final int PERMS_REQUEST_CODE = 1;
-
 //    UI Element Properties
     EditText mDescriptionIncident;
     RadioGroup mIncidentType;
@@ -77,11 +63,16 @@ public class ReportActivity extends AppCompatActivity {
     Button mCaptureCamera;
     Button mSubmit;
     TextView mSchoolbro;
-
-
     //      Array List
     ArrayList<String> pathArray;
     int array_position;
+    String schoolSelected;
+    //    Firebase Authentication Declaration
+    private FirebaseAuth mAuth;
+    //    Firebase Storage Declarations
+    private StorageReference mStorage;
+    //    Firebase Database Declarations
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,8 +107,6 @@ public class ReportActivity extends AppCompatActivity {
 
 
     }
-
-
 
     @Override
     protected void onStart() {
@@ -160,9 +149,6 @@ public class ReportActivity extends AppCompatActivity {
 
 
     }
-
-
-    String schoolSelected;
 
         public String selectedSchool() {
 
@@ -327,6 +313,7 @@ public class ReportActivity extends AppCompatActivity {
                         dataMap.put("UID", uid);
                         dataMap.put("description", description);
                         dataMap.put("Media", downloadUri);
+
                         dataMap.put("timeStamp", ServerValue.TIMESTAMP);
                         getSchoolSelected();
 

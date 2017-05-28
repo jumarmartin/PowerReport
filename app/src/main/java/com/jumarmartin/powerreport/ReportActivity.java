@@ -30,7 +30,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.jumarmartin.powerreport.R.id.capture_from_camera;
@@ -63,9 +62,7 @@ public class ReportActivity extends AppCompatActivity {
     Button mCaptureCamera;
     Button mSubmit;
     TextView mSchoolbro;
-    //      Array List
-    ArrayList<String> pathArray;
-    int array_position;
+
     String schoolSelected;
     //    Firebase Authentication Declaration
     private FirebaseAuth mAuth;
@@ -99,8 +96,7 @@ public class ReportActivity extends AppCompatActivity {
         mSubmit = (Button)findViewById(submit_button);
         mSchoolbro = (TextView)findViewById(select_school);
 
-//      PathArray Dec.
-        pathArray = new ArrayList<>();
+
 
 
 
@@ -292,7 +288,7 @@ public class ReportActivity extends AppCompatActivity {
                         @SuppressWarnings("VisibleForTests") String downloadUri = taskSnapshot.getDownloadUrl().toString();
 
                         Toast.makeText(ReportActivity.this, upload_successful, Toast.LENGTH_LONG).show();
-                        String typeOfIncident = "";
+                        String typeOfIncident;
 
                         if (mIncidentType.getCheckedRadioButtonId() == incident_type_bullying) {
                             typeOfIncident = "Bullying";
@@ -304,8 +300,9 @@ public class ReportActivity extends AppCompatActivity {
                             typeOfIncident = "Abuse of Power";
                         }else if (mIncidentType.getCheckedRadioButtonId() == incident_type_other){
                             typeOfIncident = "Other";
+                        } else {
+                            typeOfIncident = null;
                         }
-
                         mDescriptionIncident.getText();
 
                         String description = mDescriptionIncident.getText().toString().trim();

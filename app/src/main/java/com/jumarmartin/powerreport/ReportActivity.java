@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Message;
 import android.provider.MediaStore;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,42 +24,64 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import static com.jumarmartin.powerreport.R.id.capture_from_camera;
 import static com.jumarmartin.powerreport.R.id.description_of_incident;
 import static com.jumarmartin.powerreport.R.id.incident_type;
+import static com.jumarmartin.powerreport.R.id.incident_type_bullying;
+import static com.jumarmartin.powerreport.R.id.incident_type_drugs;
+import static com.jumarmartin.powerreport.R.id.incident_type_fighting;
+import static com.jumarmartin.powerreport.R.id.incident_type_other;
+import static com.jumarmartin.powerreport.R.id.incident_type_power;
 import static com.jumarmartin.powerreport.R.id.school_spinner;
 import static com.jumarmartin.powerreport.R.id.select_image;
+import static com.jumarmartin.powerreport.R.id.select_school;
 import static com.jumarmartin.powerreport.R.id.submit_button;
-import static com.jumarmartin.powerreport.R.id.up;
+import static com.jumarmartin.powerreport.R.string.upload_failure;
+import static com.jumarmartin.powerreport.R.string.upload_successful;
 
 
 public class ReportActivity extends AppCompatActivity {
-    //Firebase Storage
+
+//    Firebase Authentication Declaration
+    private FirebaseAuth mAuth;
+//    Firebase Storage Declarations
     private StorageReference mStorage;
 
-    //Firebase Database
+//    Firebase Database Declarations
     private DatabaseReference mDatabase;
 
-    //Codes
+//    Code Declarations
     private static final int GALLERY_INTENT = 2;
     private static final int CAMERA_REQUEST_CODE = 1;
     private static final int PERMS_REQUEST_CODE = 1;
 
-    //UI Element Properties
+//    UI Element Properties
     EditText mDescriptionIncident;
     RadioGroup mIncidentType;
     Spinner mSchool;
     Button mSelectImage;
     Button mCaptureCamera;
     Button mSubmit;
+    TextView mSchoolbro;
+
+
+    //      Array List
+    ArrayList<String> pathArray;
+    int array_position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,46 +89,50 @@ public class ReportActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         addSchoolsToSpinner();
 
-        //Firebase Database
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+//        Firebase Database
+        mDatabase = FirebaseDatabase.getInstance().getReference("School");
 
-        //Firebase Storage
+//        Firebase Storage
 
         mStorage = FirebaseStorage.getInstance().getReference();
 
-        //THIS AREA IS FOR TESTING PURPOSES ONLY
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference("message/:id");
-            myRef.setValue("Hello, \n World!");
-            DatabaseReference myUUID = database.getReference("UUID");
-            FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-            myUUID.setValue(currentFirebaseUser.getUid());
-        //END TESTING AREA
+//        Firebase Authentication
+        mAuth = FirebaseAuth.getInstance();
 
-        //Get UI Elements
+//        Get UI Elements
         mDescriptionIncident = (EditText)findViewById(description_of_incident);
         mIncidentType = (RadioGroup)findViewById(incident_type);
         mSchool = (Spinner)findViewById(school_spinner);
         mSelectImage = (Button)findViewById(select_image);
         mCaptureCamera = (Button)findViewById(capture_from_camera);
         mSubmit = (Button)findViewById(submit_button);
+        mSchoolbro = (TextView)findViewById(select_school);
+
+//      PathArray Dec.
+        pathArray = new ArrayList<>();
+
+
+
 
 
     }
 
+
+
     @Override
     protected void onStart() {
         super.onStart();
+
+        if (hasPermissions()) {
+            Log.d("Permissions", "We have sufficient permissions.");
+        } else {
+            requestPerms();
+        }
+
         //Select from gallery
         mSelectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (hasPermissions()) {
-                    Log.d("Permissions", "We have sufficient permissions.");
-                } else {
-                    requestPerms();
-                }
 
                 Intent intent = new Intent(Intent.ACTION_PICK);
 
@@ -115,17 +144,10 @@ public class ReportActivity extends AppCompatActivity {
             }
         });
 
-        //Capture from Camera
+//        Capture from Camera
         mCaptureCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
-                if (hasPermissions()) {
-                    Log.d("Permissions", "We have sufficient permissions.");
-                } else {
-                    requestPerms();
-                }
 
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(intent, CAMERA_REQUEST_CODE);
@@ -133,79 +155,218 @@ public class ReportActivity extends AppCompatActivity {
         });
 
 
+        selectedSchool();
+
+
 
     }
 
-    @IgnoreExtraProperties
-    public class Incident {
 
-        //NOTE:  The JSON layout is School (Which school location)/Type (Drugs, Bullying, etc.)/uid (unique identifier)/media (photo or video)
+    String schoolSelected;
 
-        /*
-        The JSON layout is
-            School/ (Which school location)
-                Type/ (Drugs, Bullying, etc.)
-                    key/ (randomly generated)
-                        UUID: (Unique Identifier)
-                        Description: (text)
-                        Media: (either Photo or Video)
-                        timestamp: (numeric -- Epoch)
-         */
-        private String school;
-        private String type;
-        private String uid;
-        private String description;
-        private Uri media;
-//TODO: Somehow include this into uploadData()
+        public String selectedSchool() {
 
-        public Incident() {
+            mSchool.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
 
+
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                    switch (position){
+                        case 0:
+                            schoolSelected = "Ardrey";
+                            break;
+                        case 1:
+                            schoolSelected = "Butler";
+                            break;
+                        case 3:
+                            schoolSelected = "Cato";
+                            break;
+                        case 4:
+                            schoolSelected = "EEG";
+                            break;
+                        case 5:
+                            schoolSelected = "eLearning";
+                            break;
+                        case 6:
+                            schoolSelected = "Garinger";
+                            break;
+                        case 7:
+                            schoolSelected = "Harding";
+                            break;
+                        case 8:
+                            schoolSelected = "Harper";
+                            break;
+                        case 9:
+                            schoolSelected = "Hawthorne";
+                            break;
+                        case 10:
+                            schoolSelected = "Hopewell";
+                            break;
+                        case 11:
+                            schoolSelected = "Cochrane";
+                            break;
+                        case 12:
+                            schoolSelected = "Independence";
+                            break;
+                        case 13:
+                            schoolSelected = "Levine";
+                            break;
+                        case 14:
+                            schoolSelected = "Mallard";
+                            break;
+                        case 15:
+                            schoolSelected = "Marie";
+                            break;
+                        case 16:
+                            schoolSelected = "Myers";
+                            break;
+                        case 17:
+                            schoolSelected = "North";
+                            break;
+                        case 18:
+                            schoolSelected = "Northwest";
+                            break;
+                        case 19:
+                            schoolSelected = "Olympic";
+                            break;
+                        case 20:
+                            schoolSelected = "Performance";
+                            break;
+                        case 21:
+                            schoolSelected = "Berry";
+                            break;
+                        case 22:
+                            schoolSelected = "Providence";
+                            break;
+                        case 23:
+                            schoolSelected = "Rocky";
+                            break;
+                        case 24:
+                            schoolSelected = "South";
+                            break;
+                        case 25:
+                            schoolSelected = "WestCLT";
+                            break;
+                        case 26:
+                            schoolSelected = "WestMeck";
+                            break;
+                        case 27:
+                            schoolSelected = "Hough";
+                            break;
+                        case 28:
+                            schoolSelected = "Vance";
+                            break;
+
+                        default:
+                            schoolSelected = null;
+                            break;
+
+                    }
+
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+        return  schoolSelected;
         }
 
-        public Incident(String uid, String type, String description, String school, Uri media) {
-            this.school = school;
-            this.type = type;
-            this.uid = uid;
-            this.description = description;
-            this.media = media;
-        }
+    public String getSchoolSelected() {
+        return schoolSelected;
     }
-
-
-
-
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
 
+
+
+
         mSubmit.setOnClickListener(new View.OnClickListener() {
 
             Uri uri;
 
-            public void uploadData() {
 
-                StorageReference filepath = mStorage.child("media").child(uri.getLastPathSegment());
 
+            private void uploadData() {
+
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                final String uid = user.getUid();
+
+                StorageReference filepath = mStorage.child("media").child(uid).child(uri.getLastPathSegment());
                 filepath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Toast.makeText(ReportActivity.this, "Upload Done", Toast.LENGTH_LONG).show();
+
+                        @SuppressWarnings("VisibleForTests") String downloadUri = taskSnapshot.getDownloadUrl().toString();
+
+                        Toast.makeText(ReportActivity.this, upload_successful, Toast.LENGTH_LONG).show();
+                        String typeOfIncident = "";
+
+                        if (mIncidentType.getCheckedRadioButtonId() == incident_type_bullying) {
+                            typeOfIncident = "Bullying";
+                        }else if (mIncidentType.getCheckedRadioButtonId() == incident_type_fighting) {
+                            typeOfIncident = "Fighting";
+                        }else if (mIncidentType.getCheckedRadioButtonId() == incident_type_drugs){
+                            typeOfIncident = "Drugs";
+                        }else if (mIncidentType.getCheckedRadioButtonId() == incident_type_power){
+                            typeOfIncident = "Abuse of Power";
+                        }else if (mIncidentType.getCheckedRadioButtonId() == incident_type_other){
+                            typeOfIncident = "Other";
+                        }
+
+                        mDescriptionIncident.getText();
+
+                        String description = mDescriptionIncident.getText().toString().trim();
+                        HashMap<String, Object> dataMap = new HashMap<>();
+                        dataMap.put("UID", uid);
+                        dataMap.put("description", description);
+                        dataMap.put("Media", downloadUri);
+                        dataMap.put("timeStamp", ServerValue.TIMESTAMP);
+                        getSchoolSelected();
+
+
+                        if (typeOfIncident == null){
+                            Toast.makeText(ReportActivity.this, "Please select an Incident", Toast.LENGTH_SHORT).show();
+                        }else if(schoolSelected == null) {
+
+                           Toast.makeText(ReportActivity.this, "Please select a school!", Toast.LENGTH_SHORT).show();
+                        } else if(description.length() < 0) {
+
+                            Toast.makeText(ReportActivity.this, "Please enter a description!", Toast.LENGTH_SHORT).show();
+                        } else{
+
+                            mDatabase.child(schoolSelected).child("incident_type").child(typeOfIncident).push().setValue(dataMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(ReportActivity.this, upload_successful, Toast.LENGTH_LONG).show();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(ReportActivity.this, upload_failure, Toast.LENGTH_LONG).show();
+                                }
+                            });
+
+                            finish();
+                        }
+
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(ReportActivity.this, "Upload Failure", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ReportActivity.this, upload_failure, Toast.LENGTH_LONG).show();
                     }
                 });
-//TODO: PREVENT UPLOAD UNTIL "SUBMIT" BUTTON IS CLICKED - UPLOAD ALL DATA FROM MODEL
-                //        else if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
-                //            Uri uri = data.getData();
-                //            StorageReference filepath = mStorage.child("media").child(uri.getLastPathSegment());
-                //        }
-                finish();
+
+
             }
+
 
             @Override
             public void onClick(View v) {
@@ -219,6 +380,10 @@ public class ReportActivity extends AppCompatActivity {
                     //Capture from Camera
 
 
+                }else if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
+                    uri = data.getData();
+
+                    uploadData();
                 }
 
 
@@ -231,6 +396,7 @@ public class ReportActivity extends AppCompatActivity {
 
 
     }
+
 
     private void addSchoolsToSpinner() {
         Spinner spinner = (Spinner) findViewById(school_spinner);
@@ -286,5 +452,3 @@ public class ReportActivity extends AppCompatActivity {
 
 
 }
-
-

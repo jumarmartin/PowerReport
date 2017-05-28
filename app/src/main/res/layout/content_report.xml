@@ -5,13 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
-
-
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:focusableInTouchMode="true"
+            >
 
             <TextView
                 android:id="@+id/select_an_incident"
@@ -67,7 +66,7 @@
                     android:textSize="20sp" />
 
                 <RadioButton
-                    android:id="@+id/type_of_incident_power"
+                    android:id="@+id/incident_type_power"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20sp"
@@ -85,6 +84,12 @@
                     android:textSize="20sp" />
 
             </RadioGroup>
+
+            <!--<LinearLayout-->
+                <!--android:focusable="true"-->
+                <!--android:focusableInTouchMode="true"-->
+                <!--android:layout_width="0px"-->
+                <!--android:layout_height="0px"/>-->
 
             <EditText
                 android:id="@+id/description_of_incident"
@@ -120,24 +125,25 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0"
+                android:layout_height="85dp"
                 android:orientation="horizontal"
                 android:paddingTop="20sp">
 
                 <Button
-                    android:id="@+id/select_image"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="186dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/select_image_from_gallery" />
-
-                <Button
                     android:id="@+id/capture_from_camera"
                     style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="181dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.84"
                     android:text="@string/capture_from_camera" />
+
+                <Button
+                    android:id="@+id/select_image"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="201dp"
+                    android:layout_height="65dp"
+                    android:text="@string/select_image_from_gallery" />
+
             </LinearLayout>
 
             <Button

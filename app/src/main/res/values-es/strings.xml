@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="action_settings">Ajustes</string>
-    <string name="tap_on_the_plus_to_get_started">Presiona el butón del plus para empezar.</string>
+    <string name="action_settings">Configuración</string>
+    <string name="tap_on_the_plus_to_get_started">Presiona el botón de plus para empezar.</string>
     <string name="drugs">Drogas</string>
     <string name="bullying">Acoso Escolar</string>
     <string name="fighting">Peleando</string>
-    <string name="select_an_incident">Tipo de incidente para informar</string>
-    <string name="other">Algo mas (Describe al Continuation)</string>
+    <string name="select_an_incident">Tipo de Incidente</string>
+    <string name="other">Algo Más (Describe a Continuación)</string>
     <string name="description_of_incident">Descripción de Incidente</string>
-    <string name="school_selection">Escvela</string>
+    <string name="school_selection">Escuela</string>
     <string name="abuse_of_power">Abuso de Autoridad</string>
     <string name="new_report">Nuevo Reporte</string>
+    <string name="capture_from_camera">Tomar Foto</string>
+    <string name="select_image_from_gallery">Seleccionar Imágen de Galería</string>
+    <string name="submit">Entregar Reportaje</string>
+    <string name="your_uid_is">Tu UID:</string>
 </resources>

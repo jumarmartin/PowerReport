@@ -47,5 +47,8 @@
     <string name="capture_from_camera">Capture from Camera</string>
     <string name="select_image_from_gallery">Select Image from Gallery</string>
     <string name="submit">Submit Report</string>
+    <string name="upload_successful">Upload Successful</string>
+    <string name="upload_failure">Upload Failure - Are internet services on?</string>
+    <string name="your_uid_is">Your UID:</string>
 
 </resources>
